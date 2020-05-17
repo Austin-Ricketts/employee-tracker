@@ -1,3 +1,8 @@
+// Dependency requirements: 
+// 1) dotenv for security, 
+// 2) mysql for database connection, 
+// 3) inquirer for question prompts, 
+// and 4) console.table for cleaner data in the command line
 require("dotenv").config();
 var mysql = require("mysql");
 var inquirer = require("inquirer");
@@ -6,7 +11,7 @@ var cTable = require("console.table");
 
 
 
-// create the connection information for the sql database
+// Standard mysql connection code
 
 var connection = mysql.createConnection({
   host: "localhost",
@@ -14,10 +19,10 @@ var connection = mysql.createConnection({
   // Your port; if not 3306
   port: 3306,
 
-  // Your username
+  // Username
   user: "root",
 
-  // Your password
+  // Password protected by dotenv
   password: "process.env.DB_PASSWORD",
   database: "employee_trackerDB"
 });
@@ -25,9 +30,10 @@ var connection = mysql.createConnection({
 connection.connect(function(err) {
     if (err) throw err;
     console.log("connected as id " + connection.threadId);
+    // prompts are started upon connection to database
     start();
   });
-
+// Questions for User enabled by the Inquirer npm package
   const start = () => {
     inquirer
       .prompt({
@@ -76,7 +82,10 @@ connection.connect(function(err) {
         }
       });
   }
-
+// All functions are grouped according to employee, role, or department
+// The group of employee functions comes first, then functions for role, 
+// finally come the functions for departments
+// This function allows the user to view all employees in the command line
   const viewEmps = () => {
 
     let query = "SELECT employee.id, employee.first_name, employee.last_name, role.title, role.salary, department.name AS departmentName FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id;";
@@ -95,7 +104,8 @@ connection.connect(function(err) {
         else {connection.end();}
     });
   }
-
+// This function allows the user to add a new employee
+// Then the user is returned to view all employees
   const addEmps = () => {
     inquirer.prompt([
         {
@@ -128,7 +138,8 @@ connection.connect(function(err) {
         viewEmps();
     });
 }
-
+// When the user decides to update an employee's information, 
+// this function checks whether the user would actually like to do that
 const confirmUpdate = () => {
     inquirer.prompt({
         name: "update",
@@ -140,7 +151,9 @@ const confirmUpdate = () => {
         else {start();}
     });
 }
-
+// Given that the user does wish to update an employee, 
+// this function handles that update, based on employee ID
+// Then the user is returned to view all employees
 const updateEmps = () => {
     
             inquirer.prompt([
@@ -185,7 +198,7 @@ const updateEmps = () => {
                 viewEmps();
             })
 }
-  
+ // This function shows all current roles within the University 
   const viewRoles = () => {
     let query = "SELECT * FROM role";
     
@@ -203,7 +216,8 @@ const updateEmps = () => {
         else {connection.end();}
     });
   }
-
+// This function allows the user to add a role to the University
+// Then the user is returned to view all the roles
   const addRoles = () => {
     inquirer.prompt([
         {
@@ -230,7 +244,7 @@ const updateEmps = () => {
         viewRoles();
     });
 }
-  
+  // This function allows the user to view all departments within the University
   const viewDepts = () => {
     let query = "SELECT * FROM department";
     
@@ -248,7 +262,8 @@ const updateEmps = () => {
         else {connection.end();}
     });
   }
-
+// This function allows the user to add a new department to the University
+// Then the user is returned to view the departments
   const addDepts = () => {
       inquirer.prompt({
           name: "newDept",
