@@ -38,7 +38,8 @@ connection.connect(function(err) {
           "View all employees",
           "View all roles",
           "View all departments",
-          "Add a department",
+          "Add a role",
+          "Add a department"
         ]
       })
       .then(function(answer) {
@@ -53,6 +54,10 @@ connection.connect(function(err) {
   
         case "View all departments":
           viewDepts();
+          break;
+        
+        case "Add a role":
+          addRoles();
           break;
         
         case "Add a department":
@@ -98,6 +103,33 @@ connection.connect(function(err) {
         else {connection.end();}
     });
   }
+
+  const addRoles = () => {
+    inquirer.prompt([
+        {
+        name: "title",
+        type: "input",
+        message: "What is the name of the new role?"
+    },
+    {
+        name: "salary",
+        type: "input",
+        message: "Please enter the salary for the new role, excluding any commas."
+    },
+    {
+        name: "depId",
+        type: "input",
+        message: "What is the Department ID number for this new role?"
+    }])
+    .then(function(answer) {
+        connection.query("INSERT INTO role SET ?", {
+            title: answer.title,
+            salary: answer.salary,
+            department_id: answer.depId
+        })
+        viewRoles();
+    });
+}
   
   const viewDepts = () => {
     let query = "SELECT * FROM department";
