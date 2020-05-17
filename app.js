@@ -1,11 +1,13 @@
 require("dotenv").config();
 var mysql = require("mysql");
 var inquirer = require("inquirer");
+var cTable = require("console.table");
+
 
 
 
 // create the connection information for the sql database
-/*
+
 var connection = mysql.createConnection({
   host: "localhost",
 
@@ -24,7 +26,7 @@ connection.connect(function(err) {
     if (err) throw err;
     console.log("connected as id " + connection.threadId);
     start();
-  });*/
+  });
 
   const start = () => {
     inquirer
@@ -35,7 +37,8 @@ connection.connect(function(err) {
         choices: [
           "View all employees",
           "View all roles",
-          "View all departments"
+          "View all departments",
+          "Add a department",
         ]
       })
       .then(function(answer) {
@@ -51,20 +54,82 @@ connection.connect(function(err) {
         case "View all departments":
           viewDepts();
           break;
+        
+        case "Add a department":
+          addDepts();
+          break;
         }
       });
   }
 
   const viewEmps = () => {
-      console.log("Hello, Emps.");
+
+    let query = "SELECT * FROM employee";
+    
+    connection.query(query, function(err, res) {
+        console.log("-------------------------------");
+        console.table(res)});
+    
+   inquirer.prompt({
+        name: "return",
+        type: "confirm",
+        message: "Would you like to keep searching?"
+    })
+    .then(function(answer) {
+        if (answer.return === true) {start();}
+        else {connection.end();}
+    });
   }
   
   const viewRoles = () => {
-      console.log("Hello, Roles.");
+    let query = "SELECT * FROM role";
+    
+    connection.query(query, function(err, res) {
+        console.log("-------------------------------");
+        console.table(res)});
+    
+   inquirer.prompt({
+        name: "return",
+        type: "confirm",
+        message: "Would you like to keep searching?"
+    })
+    .then(function(answer) {
+        if (answer.return === true) {start();}
+        else {connection.end();}
+    });
   }
   
   const viewDepts = () => {
-      console.log("Hello, Emps.");
+    let query = "SELECT * FROM department";
+    
+    connection.query(query, function(err, res) {
+        console.log("-------------------------------");
+        console.table(res)});
+    
+   inquirer.prompt({
+        name: "return",
+        type: "confirm",
+        message: "Would you like to keep searching?"
+    })
+    .then(function(answer) {
+        if (answer.return === true) {start();}
+        else {connection.end();}
+    });
   }
 
-  start();
+  const addDepts = () => {
+      inquirer.prompt({
+          name: "newDept",
+          type: "input",
+          message: "What is the name of your new department?"
+      })
+      .then(function(answer) {
+          connection.query("INSERT INTO department SET ?", {
+              name: answer.newDept
+          })
+          viewDepts();
+      });
+  }
+
+
+  
